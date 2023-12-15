@@ -1,7 +1,7 @@
 #include <iostream>
 
 
-#include "bmp.cpp"
+#include "src/bmp.cpp"
 
 
 
