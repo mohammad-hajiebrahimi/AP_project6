@@ -1,4 +1,3 @@
-
 #include <bits/stdc++.h>
 
 #include "src/bmp.cpp"
@@ -32,6 +31,34 @@ The (0, 0) pixel is the top-left corner of the image.
 So we have data[row][column]
 The bottom-right pixel is: bmp.data[bmp.infoHdr.height - 1][bmp.infoHdr.width - 1]
 */
+class Filter{
+public:
+    Filter(string bmpfile,string view);
+    void init_filter(string bmpfile,string view);
+private:
+    Bmp input_bmp;
+    int x_view;
+    int y_view;
+    int h_view;
+    int w_view;
+};
+void Filter::init_filter(string bmpfile,string view){
+    vector<string> v;
+    stringstream ss(view);
+    while (ss.good()) {
+        string substr;
+        getline(ss, substr, ':');
+        v.push_back(substr);
+    }
+    x_view = stoi(v[0]);
+    y_view = stoi(v[1]);
+    w_view = stoi(v[2]);
+    h_view = stoi(v[3]);
+    read(input_bmp, bmpfile);
+}
+Filter::Filter(string bmpfile, string view){
+    init_filter(bmpfile,view);
+}
 void do_filters(int argc, char **argv){
     for (int i=0;i<argc;i++){
         string input;
