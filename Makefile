@@ -15,4 +15,4 @@ clean:
 	rm ${BUILD_DIR}/*.o ${BUILD_DIR}/a.out
 
 run:
-	${BUILD_DIR}/./a.out
+	${BUILD_DIR}/./a.out -B -S 3:4:30:40 -G
