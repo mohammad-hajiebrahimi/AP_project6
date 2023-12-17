@@ -79,7 +79,8 @@ KernelFilter::KernelFilter(Bmp bmpfile,string view)
 class ColorFilter:public Filter{
 public:
     ColorFilter(Bmp bmpfile,string view);
-    virtual void apply_filter() = 0;
+    virtual Pixel set_cell(int row,int col)=0;
+    virtual void apply_filter();
 protected:
     Bmp result_filter;
 };
@@ -93,25 +94,37 @@ ColorFilter::ColorFilter(Bmp bmpfile,string view)
         }
     }
 }
+void ColorFilter::apply_filter(){
+    for(int i=x_view;i<x_view+w_view;i++){
+        for(int j=y_view;j<y_view+h_view;j++){
+            result_filter.data[j][i]=set_cell(j,i);
+        }
+    }
+}
 class Grayscale:public ColorFilter{
 public:
     Grayscale(Bmp bmpfile,string view);
-    int set_cell(int row,int col){
-        return (input_bmp.data[row][col].red + input_bmp.data[row][col].grn + input_bmp.data[row][col].blu)/3;
+    virtual Pixel set_cell(int row, int col){
+        int gray = (input_bmp.data[row][col].red + input_bmp.data[row][col].grn + input_bmp.data[row][col].blu)/3;
+        return Pixel(gray,gray,gray);
     }
-    void apply_filter();
     Bmp get_result(){return result_filter;}
 };
 Grayscale::Grayscale(Bmp bmpfile,string view)
       :ColorFilter(bmpfile,view)
 {
 }
-void Grayscale::apply_filter(){
-    for(int i=x_view;i<x_view+w_view;i++){
-        for(int j=y_view;j<y_view+h_view;j++){
-            result_filter.data[j][i]=Pixel(set_cell(j,i),set_cell(j,i),set_cell(j,i));
-        }
+class Invert:public ColorFilter{
+public:
+    Invert(Bmp bmpfile,string view);
+    virtual Pixel set_cell(int row, int col){
+        return Pixel(255-input_bmp.data[row][col].red,255-input_bmp.data[row][col].grn,255-input_bmp.data[row][col].blu);
     }
+    Bmp get_result(){return result_filter;}
+};
+Invert::Invert(Bmp bmpfile,string view)
+      :ColorFilter(bmpfile,view)
+{
 }
 
 vector<pair<string,string>> input_filters(string input_bmp,int argc, char **argv){
@@ -170,10 +183,11 @@ void do_filters(string input_bmp,string output_bmp,vector<pair<string,string>> f
             input = EMBOSS;
         }
         else if (filters[i].first== "-I"){
-            input = INVERT;
+            Invert invert(image,filters[i].second);
+            invert.apply_filter();
+            image = invert.get_result();
         }
         else if (filters[i].first== "-G"){
-            input = GRAYSCALE;
             Grayscale gray(image,filters[i].second);
             gray.apply_filter();
             image = gray.get_result();
