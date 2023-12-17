@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 
 #include "src/bmp.cpp"
+
 using namespace std;
 #define sep ' '
 #define endl '\n'
@@ -31,101 +32,8 @@ The (0, 0) pixel is the top-left corner of the image.
 So we have data[row][column]
 The bottom-right pixel is: bmp.data[bmp.infoHdr.height - 1][bmp.infoHdr.width - 1]
 */
-class Filter{
-public:
-    Filter(Bmp bmpfile,string view);
-    void init_filter(Bmp bmpfile,string view);
-    int get_x_view(){return x_view;}
-    int get_y_view(){return y_view;}
-    int get_h_view(){return h_view;}
-    int get_w_view(){return w_view;}
-protected:
-    Bmp input_bmp;
-    int x_view;
-    int y_view;
-    int h_view;
-    int w_view;
-};
-void Filter::init_filter(Bmp bmpfile,string view){
-    vector<string> v;
-    stringstream ss(view);
-    while (ss.good()) {
-        string substr;
-        getline(ss, substr, ':');
-        v.push_back(substr);
-    }
-    x_view = stoi(v[0]);
-    y_view = stoi(v[1]);
-    w_view = stoi(v[2]);
-    h_view = stoi(v[3]);
-    input_bmp = bmpfile;
-}
-Filter::Filter(Bmp bmpfile, string view){
-    init_filter(bmpfile,view);
-}
-
-class KernelFilter: public Filter{
-public:
-    KernelFilter(Bmp bmpfile,string view);
-protected:
-    vector<vector<int>> kernel_matrix;
-    float normal_factor;
-};
-KernelFilter::KernelFilter(Bmp bmpfile,string view)
-            :Filter(bmpfile,view){
-}
-
-
-class ColorFilter:public Filter{
-public:
-    ColorFilter(Bmp bmpfile,string view);
-    virtual Pixel set_cell(int row,int col)=0;
-    virtual void apply_filter();
-protected:
-    Bmp result_filter;
-};
-ColorFilter::ColorFilter(Bmp bmpfile,string view)
-           :Filter(bmpfile,view)
-{
-    create(result_filter,input_bmp.infoHdr.width,input_bmp.infoHdr.height);
-    for(int i=0;i<input_bmp.infoHdr.width;i++){
-        for(int j=0;j<input_bmp.infoHdr.height;j++){
-            result_filter.data[j][i] = input_bmp.data[j][i];
-        }
-    }
-}
-void ColorFilter::apply_filter(){
-    for(int i=x_view;i<x_view+w_view;i++){
-        for(int j=y_view;j<y_view+h_view;j++){
-            result_filter.data[j][i]=set_cell(j,i);
-        }
-    }
-}
-class Grayscale:public ColorFilter{
-public:
-    Grayscale(Bmp bmpfile,string view);
-    virtual Pixel set_cell(int row, int col){
-        int gray = (input_bmp.data[row][col].red + input_bmp.data[row][col].grn + input_bmp.data[row][col].blu)/3;
-        return Pixel(gray,gray,gray);
-    }
-    Bmp get_result(){return result_filter;}
-};
-Grayscale::Grayscale(Bmp bmpfile,string view)
-      :ColorFilter(bmpfile,view)
-{
-}
-class Invert:public ColorFilter{
-public:
-    Invert(Bmp bmpfile,string view);
-    virtual Pixel set_cell(int row, int col){
-        return Pixel(255-input_bmp.data[row][col].red,255-input_bmp.data[row][col].grn,255-input_bmp.data[row][col].blu);
-    }
-    Bmp get_result(){return result_filter;}
-};
-Invert::Invert(Bmp bmpfile,string view)
-      :ColorFilter(bmpfile,view)
-{
-}
+#include "src/Filters.cpp"
+#include "src/ColorFilter.cpp"
 
 vector<pair<string,string>> input_filters(string input_bmp,int argc, char **argv){
     Bmp image;
