@@ -7,17 +7,19 @@ make
 make run
 make clean
 ```
-###INVERT
+#### INVERT
 ![Haji](Pic/Invert.bmp)
 
-###GRAYSCALE
+
+
+#### GRAYSCALE
 ![Haji](Pic/Grayscale.bmp)
 
-###EMBOSS
+#### EMBOSS
 ![Haji](Pic/Emboss.bmp)
 
-###SHARPEN
+#### SHARPEN
 ![Haji](Pic/Sharpen.bmp)
 
-###GAUSSIAN
+#### GAUSSIAN
 ![Haji](Pic/Gaussian.bmp)
